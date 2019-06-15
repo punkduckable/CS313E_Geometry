@@ -19,7 +19,7 @@ import math
 # floating point equality
 def is_equal (a, b):
     tol = 1.0e-16
-    return (abs (x - y) < tol)
+    return (abs (a - b) < tol)
 
 
 
@@ -54,25 +54,25 @@ class Circle (object):
     # constructor
     # x, y, and radius are floats
     def __init__ (self, radius = 1, x = 0, y = 0):
-        self.radius = radius
-        self.center = Point (x, y)
+        self.radius = radius;
+        self.center = Point (x, y);
 
     # compute cirumference
     def circumference (self):
-        return 2.0 * math.pi * self.radius
+        return 2.0*math.pi*self.radius;
 
     # compute area
     def area (self):
-        return math.pi * self.radius * self.radius
+        return math.pi * self.radius * self.radius;
 
     # determine if point is strictly inside circle
     def point_inside (self, p):
-        return (self.center.dist(p) < self.radius)
+        return (self.center.dist(p) < self.radius);
 
-    # determine if a circle is strictly inside this circle
+    # determine if a circle c is strictly inside this circle
     def circle_inside (self, c):
-        distance = self.center.dist (c.center)
-        return (distance + c.radius) < self.radius
+        distance = self.center.dist (c.center);
+        return (distance + c.radius) < self.radius;
 
     # determine if a circle c overlaps this circle (non-zero area of overlap)
     # but neither is completely inside the other
@@ -207,11 +207,26 @@ class Rectangle (object):
 
 
 def read_point(File):
-    # First, read a line and then split it along spaces. The first two
+    # First, read a line and then split it by spaces. The first two
     # components of the resulting list should be our numbers
     words = (File.readline()).split(" ");
     point_coords = words[0:2];
     return Point(float(point_coords[0]), float(point_coords[1]));
+
+def read_circle(File):
+    # First read a line and split it by spaces. The first 3 components of the
+    # resulting list should be the radius and center coordinates
+    words = (File.readline()).split(" ");
+    radius_and_center = words[0:3];
+    return Circle(float(radius_and_center[0]), float(radius_and_center[1]), float(radius_and_center[2]));
+
+def read_rectangle(File):
+    # Read a lit and split it by spaces. The first 4 components of the resulting
+    # list should be the coordinates of the upper left and lower right corners
+    words = (File.readline()).split(" ");
+    coords = words[0:4];
+    return Rectangle(float(coords[0]), float(coords[1]), float(coords[2]), float(coords[3]));
+
 
 
 def main():
@@ -230,48 +245,76 @@ def main():
     print("Distance between P and Q: %f" % P.dist(Q));
 
     # create two Circle objects C and D
+    C = read_circle(File);
+    D = read_circle(File);
 
     # print C and D
+    print("Circle C: ", C);
+    print("Circle D: ", D);
 
     # compute the circumference of C
+    print("Circumference of C: %f" % C.circumference());
 
     # compute the area of D
+    print("Area of D: %f" % D.area());
 
     # determine if P is strictly inside C
+    print("P " + ("is " if (C.point_inside(P)) else "is not ") + "inside C");
 
     # determine if C is strictly inside D
+    print("C " + ("is " if (D.circle_inside(C)) else "is not ") + "inside D")
 
     # determine if C and D intersect (non zero area of intersection)
+    print("C " + ("does " if (C.circle_overlap(D)) else "does not ") + "intersect D");
 
     # determine if C and D are equal (have the same radius)
+    print("C " + ("is " if (C==D) else "is not ") + "equal to D");
 
     # create two rectangle objects G and H
+    G = read_rectangle(File);
+    H = read_rectangle(File);
 
     # print the two rectangles G and H
+    print("Rectangle G: ", G);
+    print("Rectangle H: ", H);
+
 
     # determine the length of G (distance along x axis)
+    print("Length of G: %.2f" % G.length());
+
 
     # determine the width of H (distance along y axis)
+    print("Width of H: %.2f" % G.width());
 
     # determine the perimeter of G
+    print("Perimeter of G: %.2f" % G.perimeter());
 
     # determine the area of H
+    print("Area of H: %.2f" % H.area());
 
     # determine if point P is strictly inside rectangle G
+    print("P " + ("is " if (G.point_inside(P)) else "is not ") + "inside G");
 
     # determine if rectangle G is strictly inside rectangle H
+    print("G " + ("is " if (H.rectangle_inside(G)) else "is not ") + "inside H");
 
     # determine if rectangles G and H overlap (non-zero area of overlap)
+    print("G " +("does " if (H.rectangle_overlap(G)) else "does not ") + "overlap H");
 
     # find the smallest circle that circumscribes rectangle G
     # goes through the four vertices of the rectangle
+    print("Circle that circumscribes G: ", C.circle_circumscribe(G));
+
 
     # find the smallest rectangle that circumscribes circle D
     # all four sides of the rectangle are tangents to the circle
+    print("Rectangle that circumscribes D: ", G.rectangle_circumscribe(D));
 
     # determine if the two rectangles have the same length and width
+    print("Rectangle G " + ("is " if (G == H) else "is not ") + "equal to H");
 
     # close the file geom.txt
+    File.close();
 
 
 
