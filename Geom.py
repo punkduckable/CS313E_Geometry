@@ -114,6 +114,20 @@ class Circle (object):
 
 
 
+def interval_intersection(a1, b1, a2, b2):
+    """This function determines if the two intervals (a1, b1), (a2, b2)
+    intersect.
+
+    If max(a1, a2) < min[b1, b2] then they intersect. """
+    a = max(a1, a2);
+    b = min(b1, b2);
+
+    if (a < b):
+        return True;
+    else:
+        return False;
+
+
 class Rectangle (object):
     # constructor
     def __init__ (self, ul_x = 0, ul_y = 1, lr_x = 1, lr_y = 0):
@@ -163,18 +177,13 @@ class Rectangle (object):
     # determine if two Rectangles overlap (non-zero area of overlap)
     # takes a rectangle object r as an argument returns a boolean
     def rectangle_overlap (self, r):
-        # this happens if any of the 4 corners of r is inside of self.
-        ll = Point(r.ul.x, r.lr.y);
-        ul = r.ul;
-        lr = r.lr;
-        ur = Point(r.lr.x, r.ul.y);
+        # the two rectangles overlap if both the x and y ranges of the rectangle
+        # have overlap. I determine this using an "interval intersection" method,
+        x_overlap = interval_intersection(self.ul.x, self.lr.x, r.ul.x, r.lr.x);
+        y_overlap = interval_intersection(self.lr.y, self.ul.y, r.lr.y, r.ul.y);
+        return (x_overlap and y_overlap);
 
-        ll_inside = self.point_inside(ll);
-        ul_inside = self.point_inside(ul);
-        lr_inside = self.point_inside(lr);
-        ur_inside = self.point_inside(ur);
 
-        return (ll_inside or ul_inside or lr_inside or ur_inside);
 
     # determine the smallest rectangle that circumscribes a circle
     # sides of the rectangle are tangents to circle c
@@ -278,10 +287,8 @@ def main():
     print("Rectangle G: ", G);
     print("Rectangle H: ", H);
 
-
     # determine the length of G (distance along x axis)
     print("Length of G: %.2f" % G.length());
-
 
     # determine the width of H (distance along y axis)
     print("Width of H: %.2f" % G.width());
@@ -299,12 +306,11 @@ def main():
     print("G " + ("is " if (H.rectangle_inside(G)) else "is not ") + "inside H");
 
     # determine if rectangles G and H overlap (non-zero area of overlap)
-    print("G " +("does " if (H.rectangle_overlap(G)) else "does not ") + "overlap H");
+    print("G " + ("does " if (H.rectangle_overlap(G)) else "does not ") + "overlap H");
 
     # find the smallest circle that circumscribes rectangle G
     # goes through the four vertices of the rectangle
     print("Circle that circumscribes G: ", C.circle_circumscribe(G));
-
 
     # find the smallest rectangle that circumscribes circle D
     # all four sides of the rectangle are tangents to the circle
