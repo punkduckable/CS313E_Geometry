@@ -175,12 +175,19 @@ class Rectangle (object):
         return (self.point_inside(r.ul) and self.point_inside(r.lr));
 
     # determine if two Rectangles overlap (non-zero area of overlap)
+    # Note: we say that two rectangles do not overlap if one contains the other.
     # takes a rectangle object r as an argument returns a boolean
     def rectangle_overlap (self, r):
-        # the two rectangles overlap if both the x and y ranges of the rectangle
-        # have overlap. I determine this using an "interval intersection" method,
+        # First, check that neither rectangle contains the other.
+        if(self.rectangle_inside(r) or r.rectangle_inside(r)):
+            return False;
+
+        # Next, determine if the two rectangles overlap if both the x and y
+        # ranges of the rectangle have overlap. I determine this using an
+        # "interval intersection" method,
         x_overlap = interval_intersection(self.ul.x, self.lr.x, r.ul.x, r.lr.x);
         y_overlap = interval_intersection(self.lr.y, self.ul.y, r.lr.y, r.ul.y);
+
         return (x_overlap and y_overlap);
 
 
