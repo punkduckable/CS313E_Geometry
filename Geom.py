@@ -298,7 +298,7 @@ def main():
     print("Length of G: %.2f" % G.length());
 
     # determine the width of H (distance along y axis)
-    print("Width of H: %.2f" % G.width());
+    print("Width of H: %.2f" % H.width());
 
     # determine the perimeter of G
     print("Perimeter of G: %.2f" % G.perimeter());
