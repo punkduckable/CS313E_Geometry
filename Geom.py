@@ -1,6 +1,6 @@
 """File: Geom.py
 
-   Description: Does some basic geometry
+   Description: Does some basic geometry with points, squares, and circles. 
 
    Student Name: Robert Stephany
 
@@ -45,8 +45,7 @@ class Point (object):
     # other is a Point object
     # returns a Boolean
     def __eq__ (self, other):
-        tol = 1.0e-16
-        return ((abs (self.x - other.x) < tol) and (abs(self.y - other.y) < tol))
+        return (is_equal(self.x, other.x)) and (is_equal(self.y, other.y));
 
 
 
@@ -67,20 +66,49 @@ class Circle (object):
 
     # determine if point is strictly inside circle
     def point_inside (self, p):
+        # a point is strictly inside of a circle if its distance from the center
+        # is less than the radius of the circle.
         return (self.center.dist(p) < self.radius);
 
     # determine if a circle c is strictly inside this circle
     def circle_inside (self, c):
-        distance = self.center.dist (c.center);
-        return (distance + c.radius) < self.radius;
+        """ a c is strictly inside of self if every point in c is inside of
+        self. Thus, let's consider an arbitrary point in c, x. In particular,
+        let's consider how we get from the center of c to x. We could go
+        straight to c or we could do it in a two step process: first going
+        from the center of self to the center of c and then from the center
+        of c to the point x. By the triangle inequality, the distance
+        from the center of self to x is less than the sum of the length of the
+        two steps. In other words,
+            d(self.center, x) <= d(self.center, c.center) + d(c.center, x)
+        since x is in c, d(c.center, x) is less than the radius of c,
+            d(self.center, x) < d(self.center, c.center) + c.radius
+        Note: expression on the right is independent of x. Since x was
+        arbitrary chosen, this must hold for all x in c. As long as the sum
+        on the right is less than self's radius, we can conclude that every
+        point x in c is also in self. """
+        distance_between_centers = self.center.dist (c.center);
+        return (distance_between_centers + c.radius) < self.radius;
 
     # determine if a circle c overlaps this circle (non-zero area of overlap)
     # but neither is completely inside the other
     # the only argument c is a Circle object
     # returns a boolean
     def circle_overlap (self, c):
-        # The two circles overlap if the distance between their centers is less
-        # than the sum of their radii
+        # First, make sure that neither circle contains the other.
+        if(self.circle_inside(c) or c.circle_inside(self)):
+            return False;
+
+        # Note: If we've made it here then neither circle (self, c) contains the other.
+
+        """If the two circles overlap, then there exists some point x that is
+        strictly inside both self and c. Since x is in self,
+                d(x, self.center) < self.radius
+       likewise, since x is in c,
+                d(x, c.center) < c.raidus
+        combining these two inequalities and using the triangle inequality gives,
+                d(c.center, self.center) < c.radius + self.radius
+        This gives us a criterion for checking if two circles overlap"""
         center_distance = self.center.dist(c.center);
         return (center_distance < (self.radius + c.radius));
 
@@ -88,14 +116,18 @@ class Circle (object):
     # the circle goes through all the vertices of the rectangle
     # the only argument, r, is a rectangle object
     def circle_circumscribe (self, r):
-        # The smallest circle to circumscribe a rectangle is the circle whose
-        # center is at the center of the rectangle and whose radius is
-        # the distance to any one of the four corners (they are all equidistance
-        # from the center)
-        center_x = r.ul.x + (r.lr.x - r.ul.x)/2;
-        center_y = r.lr.y + (r.ul.y - r.lr.y)/2;
-        center = Point(center_x, center_y);
+        """ The smallest circle to circumscribe a rectangle is the circle whose
+        center is at the center of the rectangle and whose radius is the
+        distance to any one of the four corners (they are all equidistance
+        from the center).
 
+        The x coordinate of the center of the rectangle is at the average of the
+        left and right edge of the rectangle. Likewise, the y coordinate of the
+        center is at the average of the top and bottom edge of the rectangle"""
+        center_x = (r.lr.x + r.ul.x)/2;
+        center_y = (r.ul.y + r.lr.y)/2;
+
+        center = Point(center_x, center_y);
         radius = center.dist(r.ul);
 
         return Circle(radius, center_x, center_y);
@@ -112,20 +144,6 @@ class Circle (object):
     def __eq__ (self, other):
         return is_equal(self.radius, other.radius);
 
-
-
-def interval_intersection(a1, b1, a2, b2):
-    """This function determines if the two intervals (a1, b1), (a2, b2)
-    intersect.
-
-    If max(a1, a2) < min[b1, b2] then they intersect. """
-    a = max(a1, a2);
-    b = min(b1, b2);
-
-    if (a < b):
-        return True;
-    else:
-        return False;
 
 
 class Rectangle (object):
@@ -185,12 +203,25 @@ class Rectangle (object):
         # Next, determine if the two rectangles overlap if both the x and y
         # ranges of the rectangle have overlap. I determine this using an
         # "interval intersection" method,
-        x_overlap = interval_intersection(self.ul.x, self.lr.x, r.ul.x, r.lr.x);
-        y_overlap = interval_intersection(self.lr.y, self.ul.y, r.lr.y, r.ul.y);
+        x_overlap = self._interval_intersection(self.ul.x, self.lr.x, r.ul.x, r.lr.x);
+        y_overlap = self._interval_intersection(self.lr.y, self.ul.y, r.lr.y, r.ul.y);
 
         return (x_overlap and y_overlap);
 
+    # Find the intersection of two intervals. This is used to help the rectangle
+    # overlap function (and thus is private)
+    def _interval_intersection(self, a1, b1, a2, b2):
+        """This function determines if the two intervals (a1, b1), (a2, b2)
+        intersect.
 
+        If max(a1, a2) < min[b1, b2] then they intersect. """
+        a = max(a1, a2);
+        b = min(b1, b2);
+
+        if (a < b):
+            return True;
+        else:
+            return False;
 
     # determine the smallest rectangle that circumscribes a circle
     # sides of the rectangle are tangents to circle c
@@ -284,7 +315,7 @@ def main():
     print("C " + ("does " if (C.circle_overlap(D)) else "does not ") + "intersect D");
 
     # determine if C and D are equal (have the same radius)
-    print("C " + ("is " if (C==D) else "is not ") + "equal to D");
+    print("C " + ("is " if (C == D) else "is not ") + "equal to D");
 
     # create two rectangle objects G and H
     G = read_rectangle(File);
