@@ -1,6 +1,6 @@
 """File: Geom.py
 
-   Description: Does some basic geometry with points, squares, and circles. 
+   Description: Does some basic geometry with points, squares, and circles.
 
    Student Name: Robert Stephany
 
@@ -70,7 +70,7 @@ class Circle (object):
         # is less than the radius of the circle.
         return (self.center.dist(p) < self.radius);
 
-    # determine if a circle c is strictly inside this circle
+    # determine if a circle c is strictly inside self 
     def circle_inside (self, c):
         """ a c is strictly inside of self if every point in c is inside of
         self. Thus, let's consider an arbitrary point in c, x. In particular,
@@ -116,22 +116,25 @@ class Circle (object):
     # the circle goes through all the vertices of the rectangle
     # the only argument, r, is a rectangle object
     def circle_circumscribe (self, r):
-        """ The smallest circle to circumscribe a rectangle is the circle whose
+        """ This function modifies self (a circle object) to become the
+        smallest circle that circumscribes the rectangle r.
+
+        The smallest circle to circumscribe a rectangle is the circle whose
         center is at the center of the rectangle and whose radius is the
         distance to any one of the four corners (they are all equidistance
         from the center).
 
         The x coordinate of the center of the rectangle is at the average of the
         left and right edge of the rectangle. Likewise, the y coordinate of the
-        center is at the average of the top and bottom edge of the rectangle"""
+        center is at the average of the top and bottom edge of the rectangle """
         center_x = (r.lr.x + r.ul.x)/2;
         center_y = (r.ul.y + r.lr.y)/2;
 
         center = Point(center_x, center_y);
         radius = center.dist(r.ul);
 
-        return Circle(radius, center_x, center_y);
-
+        self.center = center;
+        self.radius = radius;
 
     # string representation of a circle
     # takes no arguments and returns a string
@@ -226,9 +229,12 @@ class Rectangle (object):
     # determine the smallest rectangle that circumscribes a circle
     # sides of the rectangle are tangents to circle c
     # takes a circle object c as input and returns a rectangle object
-    def rectangle_circumscribe (self, c):
-        # this is just the square, centered at the center of c, whose side
-        # length is the diameter of c.
+    def rectangle_circumscribe(self, c):
+        """ This function modifies self to become the smallest rectangle that
+        circumscribes circle c
+
+        this is just the square, centered at the center of c, whose side
+        length is the diameter of c. """
 
         # We define ul and lr relative to the center of c.
         ul_x = c.center.x - c.radius;
@@ -236,7 +242,8 @@ class Rectangle (object):
         lr_x = c.center.x + c.radius;
         lr_y = c.center.y - c.radius;
 
-        return Rectangle(ul_x, ul_y, lr_x, lr_y);
+        self.ul = Point(ul_x, ul_y);
+        self.lr = Point(lr_x, lr_y);
 
     # give string representation of a rectangle
     # takes no arguments, returns a string
@@ -348,11 +355,15 @@ def main():
 
     # find the smallest circle that circumscribes rectangle G
     # goes through the four vertices of the rectangle
-    print("Circle that circumscribes G: ", C.circle_circumscribe(G));
+    G_circum = Circle()
+    G_circum.circle_circumscribe(G);
+    print("Circle that circumscribes G: ", G_circum);
 
     # find the smallest rectangle that circumscribes circle D
     # all four sides of the rectangle are tangents to the circle
-    print("Rectangle that circumscribes D: ", G.rectangle_circumscribe(D));
+    D_circum = Rectangle();
+    D_circum.rectangle_circumscribe(D);
+    print("Rectangle that circumscribes D: ", D_circum);
 
     # determine if the two rectangles have the same length and width
     print("Rectangle G " + ("is " if (G == H) else "is not ") + "equal to H");
