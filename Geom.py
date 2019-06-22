@@ -70,7 +70,7 @@ class Circle (object):
         # is less than the radius of the circle.
         return (self.center.dist(p) < self.radius);
 
-    # determine if a circle c is strictly inside self 
+    # determine if a circle c is strictly inside self
     def circle_inside (self, c):
         """ a c is strictly inside of self if every point in c is inside of
         self. Thus, let's consider an arbitrary point in c, x. In particular,
@@ -195,12 +195,12 @@ class Rectangle (object):
         # this happens if r's ul and lr points are inside of self.
         return (self.point_inside(r.ul) and self.point_inside(r.lr));
 
-    # determine if two Rectangles overlap (non-zero area of overlap)
-    # Note: we say that two rectangles do not overlap if one contains the other.
+    # determine if two Rectangles overlap (non-zero area of overlap) but
+    # neither rectangle contains the other.
     # takes a rectangle object r as an argument returns a boolean
     def rectangle_overlap (self, r):
         # First, check that neither rectangle contains the other.
-        if(self.rectangle_inside(r) or r.rectangle_inside(r)):
+        if(self.rectangle_inside(r) or r.rectangle_inside(self)):
             return False;
 
         # Next, determine if the two rectangles overlap if both the x and y
